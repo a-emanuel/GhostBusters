@@ -48,15 +48,7 @@ def classifyData(model, test_data):
     return submission
 
 
-def main():
-    train_data = pd.read_csv('train.csv.zip')
-    test_data = pd.read_csv('test.csv.zip')
-
-    model, train = trainModel(train_data)
-    submission = classifyData(model, test_data)
-    print(submission)
-    print(submission['type'].value_counts())
-
+def ploting(train):
     plt.plot(train.history['val_accuracy'], label='Validation accuracy')
     plt.plot(train.history['accuracy'], color='red', marker='.', linestyle='--', label='Training accuracy')
     plt.legend()
@@ -67,6 +59,19 @@ def main():
     plt.legend()
 
     plt.show()
+
+def main():
+    train_data = pd.read_csv('train.csv.zip')
+    test_data = pd.read_csv('test.csv.zip')
+
+    model, train = trainModel(train_data)
+    submission = classifyData(model, test_data)
+    print(submission)
+    print(submission['type'].value_counts())
+
+    ploting(train)
+
+
 
 
 main()
