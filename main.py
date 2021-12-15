@@ -42,8 +42,8 @@ def classifyData(model, test_data):
     pred = model.predict(test_data.drop('id', axis=1))
 
     pred_final = [np.argmax(i) for i in pred]
-    # submission = pd.DataFrame({'id': test_data['id'], 'type': pred_final})
-    submission = pd.concat([test_data, pred_final])
+    submission = pd.DataFrame({'id': test_data['id'], 'type': pred_final})
+    #submission = pd.concat([test_data, pred_final])
     submission['type'].replace(to_replace=[0, 1, 2], value=['Ghost', 'Ghoul', 'Goblin'], inplace=True)
     return submission
 
@@ -55,6 +55,18 @@ def main():
     model, train = trainModel(train_data)
     submission = classifyData(model, test_data)
     print(submission)
+    print(submission['type'].value_counts())
+
+    plt.plot(train.history['val_accuracy'], label='Validation accuracy')
+    plt.plot(train.history['accuracy'], color='red', marker='.', linestyle='--', label='Training accuracy')
+    plt.legend()
+
+    plt.figure()
+    plt.plot(train.history['val_loss'], label='Validation loss')
+    plt.plot(train.history['loss'], color='red', marker='.', linestyle='--', label='Training loss')
+    plt.legend()
+
+    plt.show()
 
 
 main()
