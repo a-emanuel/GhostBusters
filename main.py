@@ -2,10 +2,12 @@ import numpy as np
 import pandas as pd
 from tensorflow.keras.optimizers import SGD
 from keras.layers import Dense, Dropout
-from keras.models import Sequential
+from keras.models import Sequential, Model
 from tensorflow.keras.regularizers import l2
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
+from tensorflow.keras import initializers
+from tensorflow.keras.layers import Dense, Input, Activation
 
 
 # %matplotlib inline
@@ -25,11 +27,22 @@ def trainModel(train_data):
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.1, random_state=42)
 
     # Create and train the network
-    model = Sequential()
-    model.add(Dropout(0.01))
-    model.add(Dense(10, activation='relu', kernel_initializer='he_normal', kernel_regularizer=l2(1e-6)))
-    model.add(Dense(3, activation='softmax', kernel_initializer='he_normal', kernel_regularizer=l2(1e-6)))
+    initializer = initializers.RandomNormal(mean=0.01, stddev=1.)
+
+    #model = Sequential()
+    input = Input(shape=(10,))
+    x = Dense(10)(input)
+    x = Dense(5)(input)
+    x = Dense(3)(x)
+    x = Activation('softmax')(x)
+    model = Model(inputs=[input], outputs=[x])
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['acc'])
+    # model.add(Dropout(0.01))
+    # model.add(Dense(10, activation='relu', kernel_initializer=initializer, kernel_regularizer=l2(1e-6)))
+    # model.add(Dense(10, activation='relu', kernel_initializer=initializer, kernel_regularizer=l2(1e-6)))
+    # model.add(Dense(3, activation='softmax', kernel_initializer=initializer, kernel_regularizer=l2(1e-6)))
     opt = SGD(learning_rate=0.01, momentum=0.9)
+
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
     train = model.fit(x=X_train, y=y_train, batch_size=16, epochs=15, verbose=2, validation_data=(X_test, y_test))
 
