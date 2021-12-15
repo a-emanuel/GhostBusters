@@ -60,7 +60,8 @@ def ploting(train):
 
     plt.show()
 
-def main():
+if __name__ == '__main__':
+
     train_data = pd.read_csv('train.csv.zip')
     test_data = pd.read_csv('test.csv.zip')
 
@@ -70,8 +71,3 @@ def main():
     print(submission['type'].value_counts())
 
     ploting(train)
-
-
-
-
-main()
