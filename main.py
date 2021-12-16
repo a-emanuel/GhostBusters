@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from keras.losses import Loss
 from tensorflow.keras.optimizers import SGD
 from keras.layers import Dense, Dropout
 from keras.models import Sequential, Model
@@ -12,6 +13,8 @@ from tensorflow.keras.layers import Dense, Input, Activation
 
 # %matplotlib inline
 def processData(data):
+    #adaugam cate o coloana pentru fiecare culoare, iar unde este 1 inseamna ca aceea este culoarea monstrului
+    #si stergem coloana culoare
     data = pd.concat([data, pd.get_dummies(data['color'])], axis=1)
     data.drop('color', axis=1, inplace=True)
     return data
@@ -27,20 +30,13 @@ def trainModel(train_data):
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.1, random_state=42)
 
     # Create and train the network
+    #genereaza ponderii cu distributie normala
     initializer = initializers.RandomNormal(mean=0.01, stddev=1.)
 
-    #model = Sequential()
-    input = Input(shape=(10,))
-    x = Dense(10)(input)
-    x = Dense(5)(input)
-    x = Dense(3)(x)
-    x = Activation('softmax')(x)
-    model = Model(inputs=[input], outputs=[x])
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['acc'])
-    # model.add(Dropout(0.01))
-    # model.add(Dense(10, activation='relu', kernel_initializer=initializer, kernel_regularizer=l2(1e-6)))
-    # model.add(Dense(10, activation='relu', kernel_initializer=initializer, kernel_regularizer=l2(1e-6)))
-    # model.add(Dense(3, activation='softmax', kernel_initializer=initializer, kernel_regularizer=l2(1e-6)))
+    model = Sequential()
+    model.add(Dense(10, activation='relu', kernel_initializer=initializer, kernel_regularizer=l2(1e-6)))
+    model.add(Dense(10, activation='relu', kernel_initializer=initializer, kernel_regularizer=l2(1e-6)))
+    model.add(Dense(3, activation='softmax', kernel_initializer=initializer, kernel_regularizer=l2(1e-6)))
     opt = SGD(learning_rate=0.01, momentum=0.9)
 
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
@@ -56,7 +52,7 @@ def classifyData(model, test_data):
 
     pred_final = [np.argmax(i) for i in pred]
     submission = pd.DataFrame({'id': test_data['id'], 'type': pred_final})
-    #submission = pd.concat([test_data, pred_final])
+    #inlocuim 0,1,2 cu denumirea monstrilor
     submission['type'].replace(to_replace=[0, 1, 2], value=['Ghost', 'Ghoul', 'Goblin'], inplace=True)
     return submission
 
